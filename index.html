@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulador de Gramáticas Dependientes del Contexto</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div id="particles-js"></div>
+    
+    <header class="hero">
+        <div class="hero-content">
+            <div class="logo-container">
+                <div class="csg-icon">
+                    <span class="icon-grammar">⟨S⟩ → ⟨α⟩</span>
+                </div>
+            </div>
+            <h1 class="title">Gramáticas Dependientes del Contexto</h1>
+            <p class="subtitle">Simulador Interactivo con Autómata Linealmente Acotado</p>
+            <p class="course-info">Gramáticas y Lenguajes Formales</p>
+            <div class="scroll-indicator">
+                <div class="mouse"></div>
+                <span>Scroll para explorar</span>
+            </div>
+        </div>
+    </header>
+
+    <main class="container">
+        <!-- Selector de Gramáticas -->
+        <section class="grammars-panel" data-scroll="fade-up">
+            <h2>🎯 Selecciona una Gramática Dependiente del Contexto</h2>
+            
+            <div class="grammar-category">
+                <h3>📚 Gramáticas Clásicas</h3>
+                <div class="grammars-grid">
+                    <div class="grammar-card active" data-grammar="anbncn">
+                        <div class="gram-icon">🔤</div>
+                        <h4>a<sup>n</sup>b<sup>n</sup>c<sup>n</sup></h4>
+                        <p>Longitud múltiple</p>
+                        <span class="gram-example">L = {abc, aabbcc, aaabbbccc, ...}</span>
+                    </div>
+                    <div class="grammar-card" data-grammar="ww">
+                        <div class="gram-icon">📋</div>
+                        <h4>ww</h4>
+                        <p>Duplicación exacta</p>
+                        <span class="gram-example">L = {aa, abab, abcabc, ...}</span>
+                    </div>
+                    <div class="grammar-card" data-grammar="anbnan">
+                        <div class="gram-icon">🔄</div>
+                        <h4>a<sup>n</sup>b<sup>n</sup>a<sup>n</sup></h4>
+                        <p>Centro marcado</p>
+                        <span class="gram-example">L = {aba, aabbaa, aaabbbaaa, ...}</span>
+                    </div>
+                    <div class="grammar-card" data-grammar="anb2n">
+                        <div class="gram-icon">✖️</div>
+                        <h4>a<sup>n</sup>b<sup>2n</sup></h4>
+                        <p>Relación 1:2</p>
+                        <span class="gram-example">L = {abb, aabbbb, aaabbbbbb, ...}</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grammar-category">
+                <h3>💼 Gramáticas Prácticas</h3>
+                <div class="grammars-grid">
+                    <div class="grammar-card" data-grammar="balanced">
+                        <div class="gram-icon">⚖️</div>
+                        <h4>Balanceo Complejo</h4>
+                        <p>Paréntesis anidados</p>
+                        <span class="gram-example">{()()}, {(())}, {((()))}, ...</span>
+                    </div>
+                    <div class="grammar-card" data-grammar="declaration">
+                        <div class="gram-icon">💻</div>
+                        <h4>Declaraciones</h4>
+                        <p>Tipo var:tipo</p>
+                        <span class="gram-example">int x:int, float y:float</span>
+                    </div>
+                    <div class="grammar-card" data-grammar="palindrome-ctx">
+                        <div class="gram-icon">🔍</div>
+                        <h4>Palíndromo Contextual</h4>
+                        <p>Con marcadores</p>
+                        <span class="gram-example">L = {aba, abba, abcba, ...}</span>
+                    </div>
+                    <div class="grammar-card" data-grammar="custom">
+                        <div class="gram-icon">✏️</div>
+                        <h4>Personalizada</h4>
+                        <p>Crea tu gramática</p>
+                        <span class="gram-example">Define tus propias reglas</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Modo de Operación -->
+        <section class="mode-panel" data-scroll="fade-up">
+            <h2>🎮 Modo de Operación</h2>
+            <div class="mode-selector">
+                <button class="mode-btn active" data-mode="generate">
+                    <svg class="mode-icon" viewBox="0 0 24 24">
+                        <path d="M19 3H5C3.9 3 3 3.9 3 5V19C3 20.1 3.9 21 5 21H19C20.1 21 21 20.1 21 19V5C21 3.9 20.1 3 19 3ZM9 17H7V10H9V17ZM13 17H11V7H13V17ZM17 17H15V13H17V17Z"/>
+                    </svg>
+                    <span>Generar Cadenas</span>
+                    <small>Derivar desde S hasta cadena terminal</small>
+                </button>
+                <button class="mode-btn" data-mode="validate">
+                    <svg class="mode-icon" viewBox="0 0 24 24">
+                        <path d="M9 16.17L4.83 12L3.41 13.41L9 19L21 7L19.59 5.59L9 16.17Z"/>
+                    </svg>
+                    <span>Validar Cadenas</span>
+                    <small>Verificar si una cadena pertenece al lenguaje</small>
+                </button>
+            </div>
+        </section>
+
+        <!-- Panel de Entrada/Generación -->
+        <section class="input-panel" data-scroll="fade-up">
+            <h2>⌨️ Configuración</h2>
+            <div class="input-container">
+                <!-- Para modo GENERAR -->
+                <div class="input-group" id="generateGroup">
+                    <label for="numDerivations">Número de derivaciones:</label>
+                    <input type="number" id="numDerivations" min="1" max="20" value="5">
+                    <small>Cantidad de pasos de derivación desde S</small>
+                </div>
+                
+                <!-- Para modo VALIDAR -->
+                <div class="input-group" id="validateGroup" style="display: none;">
+                    <label for="inputString">Cadena a validar:</label>
+                    <input type="text" id="inputString" placeholder="Ingresa la cadena a validar..." maxlength="50">
+                    <div class="char-counter"><span id="charCount">0</span>/50 caracteres</div>
+                </div>
+
+                <button class="btn btn-primary btn-large" id="startBtn">
+                    <svg class="btn-icon" viewBox="0 0 24 24">
+                        <path d="M8 5V19L19 12L8 5Z"/>
+                    </svg>
+                    Iniciar Simulación
+                </button>
+            </div>
+        </section>
+
+        <!-- Controles de Ejecución -->
+        <section class="control-panel" data-scroll="fade-up">
+            <h2>🎮 Controles de Ejecución</h2>
+            <div class="controls-container">
+                <div class="button-grid">
+                    <button class="btn btn-control" id="stepBtn">
+                        <svg class="btn-icon" viewBox="0 0 24 24">
+                            <path d="M10 18L16 12L10 6V18Z"/>
+                        </svg>
+                        Siguiente Paso
+                    </button>
+                    <button class="btn btn-control btn-play" id="runBtn">
+                        <svg class="btn-icon" viewBox="0 0 24 24">
+                            <path d="M8 5V19L19 12L8 5Z"/>
+                        </svg>
+                        Ejecutar
+                    </button>
+                    <button class="btn btn-control btn-pause" id="pauseBtn" style="display: none;">
+                        <svg class="btn-icon" viewBox="0 0 24 24">
+                            <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>
+                        </svg>
+                        Pausar
+                    </button>
+                    <button class="btn btn-control btn-reset" id="resetBtn">
+                        <svg class="btn-icon" viewBox="0 0 24 24">
+                            <path d="M17.65 6.35C16.2 4.9 14.21 4 12 4C7.58 4 4 7.58 4 12C4 16.42 7.58 20 12 20C15.73 20 18.84 17.45 19.73 14H17.65C16.83 16.33 14.61 18 12 18C8.69 18 6 15.31 6 12C6 8.69 8.69 6 12 6C13.66 6 15.14 6.69 16.22 7.78L13 11H20V4L17.65 6.35Z"/>
+                        </svg>
+                        Reiniciar
+                    </button>
+                </div>
+                
+                <div class="speed-control">
+                    <label for="speedSlider">Velocidad:</label>
+                    <div class="speed-slider-container">
+                        <span class="speed-label">🐢</span>
+                        <input type="range" id="speedSlider" min="50" max="1000" value="600" class="speed-slider">
+                        <span class="speed-label">🐇</span>
+                    </div>
+                    <span class="speed-value" id="speedValue">600ms</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Visualización de la Forma Sentencial (Cinta del LBA) -->
+        <section class="tape-section" data-scroll="zoom-in">
+            <h2>🎞️ Forma Sentencial Actual</h2>
+            <div class="tape-wrapper">
+                <button class="tape-nav" id="scrollLeft">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M15.41 7.41L14 6L8 12L14 18L15.41 16.59L10.83 12L15.41 7.41Z"/>
+                    </svg>
+                </button>
+                
+                <div class="tape-container" id="tapeContainer">
+                    <div class="tape-bounds">
+                        <span class="bound-marker left-bound">⟨</span>
+                        <div class="tape" id="tape">
+                            <!-- Generado dinámicamente -->
+                        </div>
+                        <span class="bound-marker right-bound">⟩</span>
+                    </div>
+                    <div class="tape-head" id="tapeHead">
+                        <div class="head-state" id="headState">S</div>
+                        <div class="head-arrow">▼</div>
+                    </div>
+                </div>
+                
+                <button class="tape-nav" id="scrollRight">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M8.59 16.59L10 18L16 12L10 6L8.59 7.41L13.17 12L8.59 16.59Z"/>
+                    </svg>
+                </button>
+            </div>
+            
+            <div class="tape-legend">
+                <div class="legend-item">
+                    <span class="legend-symbol terminal">a</span>
+                    <span>Terminal</span>
+                </div>
+                <div class="legend-item">
+                    <span class="legend-symbol non-terminal">S</span>
+                    <span>No Terminal</span>
+                </div>
+                <div class="legend-item">
+                    <span class="legend-symbol context">α</span>
+                    <span>Contexto</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Estado del Sistema -->
+        <section class="status-section" data-scroll="fade-up">
+            <h2>📊 Estado del Sistema</h2>
+            <div class="status-grid">
+                <div class="status-card">
+                    <div class="status-icon">📍</div>
+                    <div class="status-content">
+                        <span class="status-label">Posición Actual</span>
+                        <span class="status-value" id="currentPosition">0</span>
+                    </div>
+                </div>
+                <div class="status-card">
+                    <div class="status-icon">🔢</div>
+                    <div class="status-content">
+                        <span class="status-label">Paso de Derivación</span>
+                        <span class="status-value" id="stepCount">0</span>
+                    </div>
+                </div>
+                <div class="status-card">
+                    <div class="status-icon">📏</div>
+                    <div class="status-content">
+                        <span class="status-label">Longitud Actual</span>
+                        <span class="status-value" id="currentLength">1</span>
+                    </div>
+                </div>
+                <div class="status-card">
+                    <div class="status-icon">⚙️</div>
+                    <div class="status-content">
+                        <span class="status-label">Regla Aplicada</span>
+                        <span class="status-value" id="appliedRule">-</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Reglas Aplicables -->
+            <div class="applicable-rules" id="applicableRulesPanel">
+                <h3>📋 Reglas Aplicables en Este Paso</h3>
+                <div class="rules-container" id="rulesContainer">
+                    <!-- Generado dinámicamente -->
+                </div>
+            </div>
+        </section>
+
+        <!-- Resultado y Árbol de Derivación -->
+        <section class="result-section" data-scroll="fade-up">
+            <div class="result-grid">
+                <div class="result-panel" id="resultPanel">
+                    <h3>🎯 Resultado</h3>
+                    <div class="result-content">
+                        <div class="result-icon" id="resultIcon">⏳</div>
+                        <div class="result-info">
+                            <span class="result-label">Estado:</span>
+                            <span class="result-value" id="result">En espera</span>
+                        </div>
+                        <div class="result-output" id="resultOutput" style="display: none;">
+                            <span class="output-label">Cadena Final:</span>
+                            <code class="output-value" id="outputValue"></code>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="derivation-panel">
+                    <h3>🌳 Historial de Derivación</h3>
+                    <div class="derivation-tree" id="derivationTree">
+                        <div class="tree-node">S</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Reglas de Producción -->
+        <section class="productions-section" data-scroll="fade-up">
+            <h2>📝 Reglas de Producción Actuales</h2>
+            <div class="productions-display" id="productionsDisplay">
+                <!-- Generado dinámicamente -->
+            </div>
+        </section>
+
+        <!-- Editor de Gramática Personalizada -->
+        <section class="editor-section" data-scroll="fade-up" id="customEditor" style="display: none;">
+            <h2>✏️ Editor de Gramática Personalizada</h2>
+            <div class="editor-container">
+                <div class="editor-panel">
+                    <h3>Símbolos</h3>
+                    <div class="symbols-config">
+                        <div class="symbol-group">
+                            <label>Símbolo Inicial:</label>
+                            <input type="text" id="startSymbol" value="S" maxlength="3">
+                        </div>
+                        <div class="symbol-group">
+                            <label>Terminales (separados por comas):</label>
+                            <input type="text" id="terminals" placeholder="a, b, c">
+                        </div>
+                        <div class="symbol-group">
+                            <label>No Terminales (separados por comas):</label>
+                            <input type="text" id="nonTerminals" placeholder="S, A, B">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="editor-panel">
+                    <h3>Reglas de Producción</h3>
+                    <div class="rules-editor" id="rulesEditor">
+                        <div class="rule-input">
+                            <input type="text" class="rule-left" placeholder="αAβ">
+                            <span class="rule-arrow">→</span>
+                            <input type="text" class="rule-right" placeholder="αγβ">
+                            <button class="btn-add-rule">+</button>
+                        </div>
+                    </div>
+                    <button class="btn btn-secondary" id="addRuleBtn">
+                        <svg class="btn-icon" viewBox="0 0 24 24">
+                            <path d="M19 13H13V19H11V13H5V11H11V5H13V11H19V13Z"/>
+                        </svg>
+                        Agregar Regla
+                    </button>
+                </div>
+
+                <div class="editor-actions">
+                    <button class="btn btn-primary" id="saveGrammarBtn">
+                        <svg class="btn-icon" viewBox="0 0 24 24">
+                            <path d="M17 3H5C3.89 3 3 3.9 3 5V19C3 20.1 3.89 21 5 21H19C20.1 21 21 20.1 21 19V7L17 3ZM19 19H5V5H16.17L19 7.83V19ZM12 12C10.34 12 9 13.34 9 15S10.34 18 12 18 15 16.66 15 15 13.66 12 12 12ZM6 6H15V10H6V6Z"/>
+                        </svg>
+                        Guardar Gramática
+                    </button>
+                    <button class="btn btn-secondary" id="loadExampleBtn">
+                        <svg class="btn-icon" viewBox="0 0 24 24">
+                            <path d="M19 3H5C3.9 3 3 3.9 3 5V19C3 20.1 3.9 21 5 21H19C20.1 21 21 20.1 21 19V5C21 3.9 20.1 3 19 3ZM14 17H7V15H14V17ZM17 13H7V11H17V13ZM17 9H7V7H17V9Z"/>
+                        </svg>
+                        Cargar Ejemplo
+                    </button>
+                    <button class="btn btn-secondary" id="validateGrammarBtn">
+                        <svg class="btn-icon" viewBox="0 0 24 24">
+                            <path d="M9 16.17L4.83 12L3.41 13.41L9 19L21 7L19.59 5.59L9 16.17Z"/>
+                        </svg>
+                        Validar Gramática
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Información Teórica -->
+        <section class="info-panel" data-scroll="fade-up">
+            <h2>📚 Información Teórica</h2>
+            <div class="info-tabs">
+                <button class="tab-btn active" data-tab="about">Acerca de</button>
+                <button class="tab-btn" data-tab="csg">CSG</button>
+                <button class="tab-btn" data-tab="lba">LBA</button>
+                <button class="tab-btn" data-tab="examples">Ejemplos</button>
+            </div>
+            <div class="info-content">
+                <div class="tab-content active" id="tab-about">
+                    <div class="info-card">
+                        <h3>🎯 Objetivo</h3>
+                        <p>Simulador interactivo de Gramáticas Dependientes del Contexto (Tipo 1 en la Jerarquía de Chomsky) utilizando un Autómata Linealmente Acotado (LBA) para visualizar derivaciones y validar cadenas.</p>
+                    </div>
+                    <div class="info-card">
+                        <h3>⚙️ Características</h3>
+                        <ul>
+                            <li>Generación de cadenas mediante derivaciones paso a paso</li>
+                            <li>Validación de cadenas pertenecientes al lenguaje</li>
+                            <li>Visualización de la forma sentencial en cinta acotada</li>
+                            <li>Editor de gramáticas personalizadas</li>
+                            <li>Árbol de derivación interactivo</li>
+                            <li>Detección automática de contexto</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="tab-content" id="tab-csg">
+                    <div class="theory-content">
+                        <h3>Gramáticas Dependientes del Contexto</h3>
+                        <p>Una gramática G = (V, Σ, P, S) es dependiente del contexto si todas sus producciones tienen la forma:</p>
+                        <div class="formula">αAβ → αγβ</div>
+                        <p>Donde:</p>
+                        <ul>
+                            <li><strong>α, β:</strong> Contexto (cualquier cadena de V*)</li>
+                            <li><strong>A:</strong> No terminal único</li>
+                            <li><strong>γ:</strong> Cadena no vacía (|γ| ≥ 1)</li>
+                        </ul>
+                        <h3>Propiedades</h3>
+                        <ul>
+                            <li>No permiten ε-producciones (excepto S → ε si S no aparece en lados derechos)</li>
+                            <li>|α| ≤ |β| para toda producción α → β</li>
+                            <li>Reconocidas por Autómatas Linealmente Acotados (LBA)</li>
+                            <li>Ubicadas entre CF (Tipo 2) y RE (Tipo 0) en la Jerarquía de Chomsky</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="tab-content" id="tab-lba">
+                    <div class="theory-content">
+                        <h3>Autómata Linealmente Acotado (LBA)</h3>
+                        <p>Un LBA es una Máquina de Turing no determinista cuya cinta está acotada por la longitud de la entrada:</p>
+                        <div class="formula">LBA = (Q, Σ, Γ, δ, q₀, ⟨, ⟩, F)</div>
+                        <ul>
+                            <li><strong>⟨, ⟩:</strong> Marcadores de límite izquierdo y derecho</li>
+                            <li>El cabezal no puede sobrepasar los límites</li>
+                            <li>Espacio de trabajo: O(n) donde n es la longitud de entrada</li>
+                        </ul>
+                        <h3>Relación con CSG</h3>
+                        <p>Teorema fundamental: Un lenguaje L es generado por una CSG si y solo si es aceptado por un LBA.</p>
+                    </div>
+                </div>
+                <div class="tab-content" id="tab-examples">
+                    <div class="examples-grid">
+                        <div class="example-card">
+                            <h4>a<sup>n</sup>b<sup>n</sup>c<sup>n</sup></h4>
+                            <p><strong>Producciones:</strong></p>
+                            <code>
+                                S → aSBC | aBC<br>
+                                CB → BC<br>
+                                aB → ab<br>
+                                bB → bb<br>
+                                bC → bc<br>
+                                cC → cc
+                            </code>
+                            <p>Genera: {abc, aabbcc, aaabbbccc, ...}</p>
+                        </div>
+                        <div class="example-card">
+                            <h4>ww (duplicación)</h4>
+                            <p><strong>Idea:</strong> Copiar exactamente la primera mitad</p>
+                            <code>
+                                S → aSA | bSB | C<br>
+                                Ca → aaC<br>
+                                Cb → bbC<br>
+                                CA → a<br>
+                                CB → b
+                            </code>
+                            <p>Genera: {aa, bb, abab, baba, ...}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Consola de Ejecución -->
+        <section class="console-section" data-scroll="fade-up">
+            <h2>📝 Log de Ejecución</h2>
+            <div class="console-controls">
+                <button class="console-btn" id="clearConsole">🗑️ Limpiar</button>
+                <button class="console-btn" id="exportLog">📥 Exportar</button>
+            </div>
+            <div class="console" id="console">
+                <div class="console-line info">> Sistema inicializado correctamente</div>
+                <div class="console-line info">> Simulador CSG con LBA v1.0</div>
+                <div class="console-line info">> Selecciona una gramática y modo de operación para comenzar</div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-logo">
+                <span class="footer-icon">🎓</span>
+                <h3>Gramáticas y Lenguajes Formales</h3>
+                <p>Universidad Tecnológica de Pereira</p>
+            </div>
+            <div class="footer-team">
+                <h4>Integrantes:</h4>
+                <ul>
+                    <li>Kevin Esteban Sánchez Torres</li>
+                    <li>Yeison Orozco Vazco</li>
+                    <li>Santiago Ardila Rendon</li>
+                    <li>Kevin Alejandro Londoño Murillo</li>
+                </ul>
+            </div>
+            <div class="footer-info">
+                <p>Proyecto Final - 2025</p>
+                <p class="tech-stack">HTML5 • CSS3 • JavaScript • LBA</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+    <script src="animations.js"></script>
+    <script src="grammars.js"></script>
+    <script src="csg-simulator.js"></script>
+</body>
+</html>
